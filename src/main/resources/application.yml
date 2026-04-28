@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/scolarisdb
+      database: scolarisdb
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/myrealm
+          jwk-set-uri: http://localhost:8180/realms/myrealm/protocol/openid-connect/certs
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: taher.robbana@sesame.com.tn
+    password: eylx nnmb nkqt mmvu
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+keycloak:
+  server-url: http://localhost:8180
+  realm: myrealm
+  client-id: spring-boot-app
+  client-secret: 2tvpy67Pp9xQCRLiilY5pPsb0HAXhpk4
+  admin-username: scolaris-admin
+  admin-password: qwerty
+
+frontend:
+  reset-password-url: http://localhost:3000/reset-password
+
+logging:
+  level:
+    com.school: DEBUG
+    org.springframework.security: DEBUG
+
+app:
+  reset-password-url: http://localhost:3000/reset-password/
+  reset-token-expiry-minutes: 30
