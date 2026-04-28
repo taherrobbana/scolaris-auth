@@ -51,8 +51,8 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String role,
-            @RequestParam(required = false) String groupe) {
-        return ResponseEntity.ok(userService.getUsers(page, size, role, groupe));
+            @RequestParam(required = false) String group) {
+        return ResponseEntity.ok(userService.getUsers(page, size, role, group));
     }
 
     @GetMapping("/{id}")

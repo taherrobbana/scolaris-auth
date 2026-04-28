@@ -9,7 +9,7 @@ public class AdminUpdateRequest {
     private String firstName;
     private String lastName;
     private Role role;
-    private String groupe;
+    private String group;
     private String avatar;
     private Boolean deleted;
     private String newPassword; // optionnel

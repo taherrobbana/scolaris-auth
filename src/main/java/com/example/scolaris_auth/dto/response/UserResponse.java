@@ -18,7 +18,7 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String role;
-    private String groupe;
+    private String group;
     private String avatar;
     private boolean deleted;
     private LocalDateTime createdAt;

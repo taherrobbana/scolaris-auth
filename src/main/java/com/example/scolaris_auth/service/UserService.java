@@ -49,7 +49,7 @@ public class UserService {
                 String keycloakId = keycloakService.createKeycloakUser(
                         req.getUsername(), req.getPassword(),
                         req.getFirstName(), req.getLastName(),
-                        req.getRole(), req.getGroupe()
+                        req.getRole(), req.getGroup()
                 );
 
                 User user = User.builder()
@@ -58,7 +58,7 @@ public class UserService {
                         .firstName(req.getFirstName())
                         .lastName(req.getLastName())
                         .role(req.getRole())
-                        .groupe(req.getGroupe())
+                        .group(req.getGroup())
                         .avatar(req.getAvatar())
                         .deleted(Boolean.TRUE.equals(req.getDeleted()))
                         .createdAt(LocalDateTime.now())
@@ -123,7 +123,7 @@ public class UserService {
                     req.getFirstName(),
                     req.getLastName(),
                     req.getUsername(),
-                    req.getGroupe()
+                    req.getGroup()
             );
 
             if (req.getRole() != null)
@@ -137,7 +137,7 @@ public class UserService {
             if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
             if (req.getLastName()  != null) user.setLastName(req.getLastName());
             if (req.getRole()      != null) user.setRole(req.getRole());
-            if (req.getGroupe()    != null) user.setGroupe(req.getGroupe());
+            if (req.getGroup()     != null) user.setGroup(req.getGroup());
             if (req.getAvatar()    != null) user.setAvatar(req.getAvatar());
             if (req.getDeleted()   != null) user.setDeleted(req.getDeleted());
             user.setUpdatedAt(LocalDateTime.now());
@@ -151,22 +151,22 @@ public class UserService {
 
     // ─── Get users paginés (admin) ────────────────────────────────────
     public PageResponse<UserResponse> getUsers(
-            int page, int size, String role, String groupe) {
+            int page, int size, String role, String group) {
 
         Pageable pageable = PageRequest.of(page, size,
                 Sort.by("createdAt").descending());
 
         Page<User> usersPage;
 
-        if (role != null && groupe != null) {
-            usersPage = userRepository.findByDeletedFalseAndRoleAndGroupe(
-                    Role.valueOf(role), groupe, pageable);
+        if (role != null && group != null) {
+            usersPage = userRepository.findByDeletedFalseAndRoleAndGroup(
+                    Role.valueOf(role), group, pageable);
         } else if (role != null) {
             usersPage = userRepository.findByDeletedFalseAndRole(
                     Role.valueOf(role), pageable);
-        } else if (groupe != null) {
-            usersPage = userRepository.findByDeletedFalseAndGroupe(
-                    groupe, pageable);
+        } else if (group != null) {
+            usersPage = userRepository.findByDeletedFalseAndGroup(
+                    group, pageable);
         } else {
             usersPage = userRepository.findByDeletedFalse(pageable);
         }
@@ -220,7 +220,7 @@ public class UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole() != null ? user.getRole().name() : null)
-                .groupe(user.getGroupe())
+                .group(user.getGroup())
                 .avatar(user.getAvatar())
                 .deleted(user.isDeleted())
                 .createdAt(user.getCreatedAt())

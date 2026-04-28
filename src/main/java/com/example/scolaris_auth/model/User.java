@@ -34,7 +34,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String groupe;
+    private String group;
     private String avatar;   // stocké en base64
 
     @Builder.Default

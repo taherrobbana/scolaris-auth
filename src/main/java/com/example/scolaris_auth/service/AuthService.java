@@ -27,7 +27,7 @@ public class AuthService {
         String keycloakId = keycloakService.createKeycloakUser(
                 req.getUsername(), req.getPassword(),
                 req.getFirstName(), req.getLastName(),
-                req.getRole(), null
+                req.getRole(), req.getGroup()
         );
 
         User user = User.builder()
@@ -36,6 +36,7 @@ public class AuthService {
                 .firstName(req.getFirstName())
                 .lastName(req.getLastName())
                 .role(req.getRole())
+                .group(req.getGroup())
                 .deleted(false)
                 .createdAt(LocalDateTime.now())
                 .build();

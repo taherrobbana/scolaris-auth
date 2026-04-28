@@ -15,7 +15,7 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     // Filtres pour liste paginée
     Page<User> findByDeletedFalseAndRole(Role role, Pageable pageable);
-    Page<User> findByDeletedFalseAndGroupe(String groupe, Pageable pageable);
-    Page<User> findByDeletedFalseAndRoleAndGroupe(Role role, String groupe, Pageable pageable);
+    Page<User> findByDeletedFalseAndGroup(String group, Pageable pageable);
+    Page<User> findByDeletedFalseAndRoleAndGroup(Role role, String group, Pageable pageable);
     Page<User> findByDeletedFalse(Pageable pageable);
 }
