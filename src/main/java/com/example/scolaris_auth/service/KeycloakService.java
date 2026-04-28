@@ -173,4 +173,14 @@ public class KeycloakService {
         }
         return response.getLocation().getPath().replaceAll(".*/", "");
     }
+
+    public void updateKeycloakGroup(String keycloakGroupId, String newName) {
+        GroupRepresentation group = getAdminClient().realm(realm).groups().group(keycloakGroupId).toRepresentation();
+        group.setName(newName);
+        getAdminClient().realm(realm).groups().group(keycloakGroupId).update(group);
+    }
+
+    public void deleteKeycloakGroup(String keycloakGroupId) {
+        getAdminClient().realm(realm).groups().group(keycloakGroupId).remove();
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.scolaris_auth.service;
 
+import com.example.scolaris_auth.dto.response.GroupResponse;
 import com.example.scolaris_auth.exception.AppException;
 import com.example.scolaris_auth.model.Group;
 import com.example.scolaris_auth.repository.GroupRepository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class GroupService {
     private final KeycloakService keycloakService;
     private final GroupRepository groupRepository;
 
-    public Group createGroup(String name) {
+    public GroupResponse createGroup(String name) {
         if (groupRepository.existsByName(name))
             throw new AppException("Group already exists", 409);
 
@@ -28,10 +30,42 @@ public class GroupService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return groupRepository.save(group);
+        return toGroupResponse(groupRepository.save(group));
     }
 
-    public List<Group> getAllGroups() {
-        return groupRepository.findAll();
+    public List<GroupResponse> getAllGroups() {
+        return groupRepository.findAll().stream()
+                .map(this::toGroupResponse)
+                .collect(Collectors.toList());
+    }
+
+    public GroupResponse updateGroup(String id, String newName) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new AppException("Group not found", 404));
+
+        if (groupRepository.existsByName(newName) && !group.getName().equals(newName))
+            throw new AppException("Group name already exists", 409);
+
+        keycloakService.updateKeycloakGroup(group.getKeycloakGroupId(), newName);
+
+        group.setName(newName);
+        return toGroupResponse(groupRepository.save(group));
+    }
+
+    public void deleteGroup(String id) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new AppException("Group not found", 404));
+
+        keycloakService.deleteKeycloakGroup(group.getKeycloakGroupId());
+        groupRepository.delete(group);
+    }
+
+    private GroupResponse toGroupResponse(Group group) {
+        return GroupResponse.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .keycloakGroupId(group.getKeycloakGroupId())
+                .createdAt(group.getCreatedAt())
+                .build();
     }
 }
