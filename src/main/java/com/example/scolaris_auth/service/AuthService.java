@@ -48,6 +48,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(tokenResponse.getToken())
                 .refreshToken(tokenResponse.getRefreshToken())
+                .role(req.getRole() != null ? req.getRole().name() : null)
                 .message("Account created successfully")
                 .build();
     }
@@ -66,6 +67,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(tokenResponse.getToken())
                 .refreshToken(tokenResponse.getRefreshToken())
+                .role(user.getRole().name())
                 .message("Login successful")
                 .build();
     }
