@@ -2,7 +2,6 @@ package com.example.scolaris_auth.controller;
 
 import com.example.scolaris_auth.dto.request.AdminUpdateRequest;
 import com.example.scolaris_auth.dto.request.BulkUserRequest;
-import com.example.scolaris_auth.dto.request.UpdateSelfRequest;
 import com.example.scolaris_auth.dto.response.PageResponse;
 import com.example.scolaris_auth.dto.response.UserResponse;
 import com.example.scolaris_auth.service.UserService;
@@ -31,13 +30,6 @@ public class UserController {
         return ResponseEntity.status(201).body(userService.bulkCreate(requests));
     }
 
-    @PutMapping("/me")
-    public ResponseEntity<UserResponse> updateSelf(
-            @RequestBody UpdateSelfRequest req,
-            @AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(userService.updateSelf(jwt.getSubject(), req));
-    }
-
     @PutMapping("/admin/batch")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<UserResponse>> adminUpdate(
@@ -49,7 +41,7 @@ public class UserController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<PageResponse<UserResponse>> getUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "1000") int size,
             @RequestParam(required = false) String role,
             @RequestParam(required = false) String group) {
         return ResponseEntity.ok(userService.getUsers(page, size, role, group));
@@ -60,6 +52,14 @@ public class UserController {
             @PathVariable String id,
             @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(userService.getUserById(id, jwt));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable String id,
+            @RequestBody AdminUpdateRequest updateRequest) {
+        return ResponseEntity.ok(userService.updateUser(id, updateRequest));
     }
 
     @DeleteMapping("/{id}")

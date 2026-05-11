@@ -2,7 +2,6 @@ package com.example.scolaris_auth.service;
 
 import com.example.scolaris_auth.dto.request.AdminUpdateRequest;
 import com.example.scolaris_auth.dto.request.BulkUserRequest;
-import com.example.scolaris_auth.dto.request.UpdateSelfRequest;
 import com.example.scolaris_auth.dto.response.PageResponse;
 import com.example.scolaris_auth.dto.response.UserResponse;
 import com.example.scolaris_auth.exception.AppException;
@@ -81,30 +80,6 @@ public class UserService {
         );
     }
 
-    // ─── Update self ──────────────────────────────────────────────────
-    public UserResponse updateSelf(String keycloakId, UpdateSelfRequest req) {
-        User user = userRepository.findByKeycloakId(keycloakId)
-                .orElseThrow(() -> new AppException("User not found", 404));
-
-        // Mise à jour Keycloak
-        keycloakService.updateKeycloakUser(
-                keycloakId,
-                req.getFirstName(),
-                req.getLastName(),
-                null,   // username non modifiable
-                null    // groupe non modifiable
-        );
-
-        // Mise à jour MongoDB
-        if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
-        if (req.getLastName()  != null) user.setLastName(req.getLastName());
-        if (req.getAvatar()    != null) user.setAvatar(req.getAvatar());
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.save(user);
-
-        return toUserResponse(user);
-    }
-
     // ─── Admin update (un ou plusieurs) ──────────────────────────────
     public List<UserResponse> adminUpdate(Map<String, AdminUpdateRequest> updates) {
         List<UserResponse> results = new ArrayList<>();
@@ -147,6 +122,42 @@ public class UserService {
         }
 
         return results;
+    }
+
+    // ─── Update single user by ID (admin) ──────────────────────────────
+    public UserResponse updateUser(String id, AdminUpdateRequest req) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException("User not found: " + id, 404));
+
+        String keycloakId = user.getKeycloakId();
+
+        // Update Keycloak
+        keycloakService.updateKeycloakUser(
+                keycloakId,
+                req.getFirstName(),
+                req.getLastName(),
+                req.getUsername(),
+                req.getGroup()
+        );
+
+        if (req.getRole() != null)
+            keycloakService.changeUserRole(keycloakId, req.getRole());
+
+        if (req.getNewPassword() != null)
+            keycloakService.resetKeycloakPassword(keycloakId, req.getNewPassword());
+
+        // Update MongoDB
+        if (req.getUsername()  != null) user.setUsername(req.getUsername());
+        if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
+        if (req.getLastName()  != null) user.setLastName(req.getLastName());
+        if (req.getRole()      != null) user.setRole(req.getRole());
+        if (req.getGroup()     != null) user.setGroup(req.getGroup());
+        if (req.getAvatar()    != null) user.setAvatar(req.getAvatar());
+        if (req.getDeleted()   != null) user.setDeleted(req.getDeleted());
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return toUserResponse(user);
     }
 
     // ─── Get users paginés (admin) ────────────────────────────────────
