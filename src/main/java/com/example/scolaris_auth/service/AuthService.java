@@ -49,6 +49,8 @@ public class AuthService {
                 .token(tokenResponse.getToken())
                 .refreshToken(tokenResponse.getRefreshToken())
                 .role(req.getRole() != null ? req.getRole().name() : null)
+                .id(user.getId())
+                .avatar(user.getAvatar())
                 .message("Account created successfully")
                 .build();
     }
@@ -68,6 +70,8 @@ public class AuthService {
                 .token(tokenResponse.getToken())
                 .refreshToken(tokenResponse.getRefreshToken())
                 .role(user.getRole().name())
+                .id(user.getId())
+                .avatar(user.getAvatar())
                 .message("Login successful")
                 .build();
     }
