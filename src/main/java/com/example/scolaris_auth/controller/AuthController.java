@@ -48,7 +48,6 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest req) {
         passwordResetService.sendResetEmail(req.getEmail());
-        // Toujours retourner succès (ne pas révéler si l'email existe)
         return ResponseEntity.ok(
                 Map.of("message", "If this email exists, a reset link has been sent"));
     }

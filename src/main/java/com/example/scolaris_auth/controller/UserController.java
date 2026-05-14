@@ -2,6 +2,7 @@ package com.example.scolaris_auth.controller;
 
 import com.example.scolaris_auth.dto.request.AdminUpdateRequest;
 import com.example.scolaris_auth.dto.request.BulkUserRequest;
+import com.example.scolaris_auth.dto.request.ProfileUpdateRequest;
 import com.example.scolaris_auth.dto.response.PageResponse;
 import com.example.scolaris_auth.dto.response.UserResponse;
 import com.example.scolaris_auth.service.UserService;
@@ -60,6 +61,13 @@ public class UserController {
             @PathVariable String id,
             @RequestBody AdminUpdateRequest updateRequest) {
         return ResponseEntity.ok(userService.updateUser(id, updateRequest));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponse> updateProfile(
+            @RequestBody ProfileUpdateRequest updateRequest,
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(userService.updateProfile(updateRequest, jwt));
     }
 
     @DeleteMapping("/{id}")

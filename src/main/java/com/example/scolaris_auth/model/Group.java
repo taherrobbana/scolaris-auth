@@ -19,11 +19,8 @@ public class Group {
 
     @Id
     private String id;
-
     private String keycloakGroupId;
-
     @Indexed(unique = true)
     private String name;
-
     private LocalDateTime createdAt;
 }

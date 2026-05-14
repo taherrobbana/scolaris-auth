@@ -22,24 +22,27 @@ public class User {
 
     @Id
     private String id;
-
     private String keycloakId;
-
     @Indexed(unique = true)
-    private String username; // c'est l'email
-
+    private String username;
     private String firstName;
     private String lastName;
-
     @Enumerated(EnumType.STRING)
     private Role role;
-
     private String group;
-    private String avatar;   // stocké en base64
-
+    private String avatar;
+    private String gender;
+    private String birthDate;
+    private String birthPlace;
+    private String nationality;
+    private String phone;
+    private String address;
+    private String postalCode;
+    private String city;
+    private String country;
+    private java.util.List<EmergencyContact> emergencyContacts;
     @Builder.Default
     private boolean deleted = false;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

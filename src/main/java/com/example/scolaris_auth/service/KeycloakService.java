@@ -66,15 +66,12 @@ public class KeycloakService {
             throw new AppException("Keycloak error: " + response.getStatusInfo());
         }
 
-        // Récupérer l'ID Keycloak
         String userId = response.getLocation().getPath().replaceAll(".*/", "");
 
-        // Assigner le rôle
         RoleRepresentation roleRep = getAdminClient().realm(realm).roles()
                 .get(role.name()).toRepresentation();
         users.get(userId).roles().realmLevel().add(List.of(roleRep));
 
-        // Assigner le groupe
         if (groupName != null && !groupName.isEmpty()) {
             List<GroupRepresentation> groups = getAdminClient().realm(realm).groups().groups(groupName, 0, 1);
             if (!groups.isEmpty()) {
@@ -124,7 +121,6 @@ public class KeycloakService {
         userResource.update(user);
 
         if (groupName != null) {
-            // Mise à jour du groupe (on assume un groupe principal)
             List<GroupRepresentation> currentGroups = userResource.groups();
             for (GroupRepresentation g : currentGroups) {
                 userResource.leaveGroup(g.getId());
@@ -138,12 +134,10 @@ public class KeycloakService {
 
     public void changeUserRole(String keycloakId, Role newRole) {
         UsersResource users = getAdminClient().realm(realm).users();
-        // Supprimer anciens rôles
         List<RoleRepresentation> existing = users.get(keycloakId).roles().realmLevel().listAll();
         existing.removeIf(r -> r.getName().equals("default-roles-" + realm) || r.getName().equals("offline_access") || r.getName().equals("uma_authorization"));
         users.get(keycloakId).roles().realmLevel().remove(existing);
 
-        // Assigner nouveau rôle
         RoleRepresentation role = getAdminClient().realm(realm).roles()
                 .get(newRole.name()).toRepresentation();
         users.get(keycloakId).roles().realmLevel().add(List.of(role));

@@ -19,14 +19,10 @@ public class PasswordResetToken {
 
     @Id
     private String id;
-
     @Indexed(unique = true)
-    private String code;          // UUID généré
-
-    private String username;      // email du user
-
+    private String code;
+    private String username;
     private LocalDateTime expiresAt;
-
     @Builder.Default
     private boolean used = false;
 }

@@ -19,7 +19,6 @@ public class AuthService {
     private final KeycloakService keycloakService;
     private final UserRepository userRepository;
 
-    // ─── Register ─────────────────────────────────────────────────────
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByUsername(req.getUsername()))
             throw new AppException("Username already exists", 409);
@@ -49,13 +48,26 @@ public class AuthService {
                 .token(tokenResponse.getToken())
                 .refreshToken(tokenResponse.getRefreshToken())
                 .role(req.getRole() != null ? req.getRole().name() : null)
+                .group(req.getGroup())
                 .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .username(user.getUsername())
                 .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .birthDate(user.getBirthDate())
+                .birthPlace(user.getBirthPlace())
+                .nationality(user.getNationality())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .postalCode(user.getPostalCode())
+                .city(user.getCity())
+                .country(user.getCountry())
+                .emergencyContacts(user.getEmergencyContacts())
                 .message("Account created successfully")
                 .build();
     }
 
-    // ─── Login ────────────────────────────────────────────────────────
     public AuthResponse login(LoginRequest req) {
         User user = userRepository.findByUsername(req.getUsername())
                 .orElseThrow(() -> new AppException("Invalid credentials", 401));
@@ -71,12 +83,25 @@ public class AuthService {
                 .refreshToken(tokenResponse.getRefreshToken())
                 .role(user.getRole().name())
                 .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .username(user.getUsername())
+                .group(user.getGroup())
                 .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .birthDate(user.getBirthDate())
+                .birthPlace(user.getBirthPlace())
+                .nationality(user.getNationality())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .postalCode(user.getPostalCode())
+                .city(user.getCity())
+                .country(user.getCountry())
+                .emergencyContacts(user.getEmergencyContacts())
                 .message("Login successful")
                 .build();
     }
 
-    // ─── Refresh token ────────────────────────────────────────────────
     public AuthResponse refreshToken(String refreshToken) {
         AccessTokenResponse tokenResponse =
                 keycloakService.refreshToken(refreshToken);

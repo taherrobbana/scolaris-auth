@@ -25,9 +25,7 @@ public class PasswordResetService {
 
     @Value("${frontend.reset-password-url}") private String resetUrl;
 
-    // ─── Envoi du mail ────────────────────────────────────────────────
     public void sendResetEmail(String email) {
-        // On ne révèle jamais si l'email existe ou non (sécurité)
         userRepository.findByUsername(email).ifPresent(user -> {
             String code = UUID.randomUUID().toString();
 
@@ -43,7 +41,6 @@ public class PasswordResetService {
         });
     }
 
-    // ─── Reset avec le code ───────────────────────────────────────────
     public void resetPassword(String code, String newPassword) {
         PasswordResetToken token = tokenRepository.findByCode(code)
                 .orElseThrow(() -> new AppException("Invalid reset code", 400));
@@ -59,12 +56,10 @@ public class PasswordResetService {
 
         keycloakService.resetKeycloakPassword(user.getKeycloakId(), newPassword);
 
-        // Invalider le code définitivement
         token.setUsed(true);
         tokenRepository.save(token);
     }
 
-    // ─── Envoi du mail ────────────────────────────────────────────────
     private void sendMail(String to, String code) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();

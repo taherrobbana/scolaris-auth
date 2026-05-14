@@ -2,6 +2,7 @@ package com.example.scolaris_auth.service;
 
 import com.example.scolaris_auth.dto.request.AdminUpdateRequest;
 import com.example.scolaris_auth.dto.request.BulkUserRequest;
+import com.example.scolaris_auth.dto.request.ProfileUpdateRequest;
 import com.example.scolaris_auth.dto.response.PageResponse;
 import com.example.scolaris_auth.dto.response.UserResponse;
 import com.example.scolaris_auth.exception.AppException;
@@ -31,7 +32,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
 
-    // ─── Bulk create (admin) ──────────────────────────────────────────
     public Map<String, Object> bulkCreate(List<BulkUserRequest> requests) {
         List<String> created = new ArrayList<>();
         List<Map<String, String>> failed = new ArrayList<>();
@@ -80,7 +80,6 @@ public class UserService {
         );
     }
 
-    // ─── Admin update (un ou plusieurs) ──────────────────────────────
     public List<UserResponse> adminUpdate(Map<String, AdminUpdateRequest> updates) {
         List<UserResponse> results = new ArrayList<>();
 
@@ -92,7 +91,6 @@ public class UserService {
                     .orElseThrow(() ->
                             new AppException("User not found: " + keycloakId, 404));
 
-            // Update Keycloak
             keycloakService.updateKeycloakUser(
                     keycloakId,
                     req.getFirstName(),
@@ -107,7 +105,6 @@ public class UserService {
             if (req.getNewPassword() != null)
                 keycloakService.resetKeycloakPassword(keycloakId, req.getNewPassword());
 
-            // Update MongoDB
             if (req.getUsername()  != null) user.setUsername(req.getUsername());
             if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
             if (req.getLastName()  != null) user.setLastName(req.getLastName());
@@ -124,14 +121,12 @@ public class UserService {
         return results;
     }
 
-    // ─── Update single user by ID (admin) ──────────────────────────────
     public UserResponse updateUser(String id, AdminUpdateRequest req) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException("User not found: " + id, 404));
 
         String keycloakId = user.getKeycloakId();
 
-        // Update Keycloak
         keycloakService.updateKeycloakUser(
                 keycloakId,
                 req.getFirstName(),
@@ -146,7 +141,6 @@ public class UserService {
         if (req.getNewPassword() != null)
             keycloakService.resetKeycloakPassword(keycloakId, req.getNewPassword());
 
-        // Update MongoDB
         if (req.getUsername()  != null) user.setUsername(req.getUsername());
         if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
         if (req.getLastName()  != null) user.setLastName(req.getLastName());
@@ -160,7 +154,43 @@ public class UserService {
         return toUserResponse(user);
     }
 
-    // ─── Get users paginés (admin) ────────────────────────────────────
+    public UserResponse updateProfile(ProfileUpdateRequest req, Jwt jwt) {
+        String keycloakId = jwt.getSubject();
+        User user = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new AppException("User not found", 404));
+
+        keycloakService.updateKeycloakUser(
+                keycloakId,
+                req.getFirstName(),
+                req.getLastName(),
+                null,
+                null
+        );
+
+        if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
+        if (req.getLastName()  != null) user.setLastName(req.getLastName());
+        if (req.getAvatar()    != null) user.setAvatar(req.getAvatar());
+        if (req.getGroup()     != null) user.setGroup(req.getGroup());
+
+        if (req.getGender()      != null) user.setGender(req.getGender());
+        if (req.getBirthDate()   != null) user.setBirthDate(req.getBirthDate());
+        if (req.getBirthPlace()  != null) user.setBirthPlace(req.getBirthPlace());
+        if (req.getNationality() != null) user.setNationality(req.getNationality());
+
+        if (req.getPhone()      != null) user.setPhone(req.getPhone());
+        if (req.getAddress()    != null) user.setAddress(req.getAddress());
+        if (req.getPostalCode() != null) user.setPostalCode(req.getPostalCode());
+        if (req.getCity()       != null) user.setCity(req.getCity());
+        if (req.getCountry()    != null) user.setCountry(req.getCountry());
+
+        if (req.getEmergencyContacts() != null) user.setEmergencyContacts(req.getEmergencyContacts());
+
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return toUserResponse(user);
+    }
+
     public PageResponse<UserResponse> getUsers(
             int page, int size, String role, String group) {
 
@@ -192,7 +222,6 @@ public class UserService {
                 .build();
     }
 
-    // ─── Get user by ID (self ou admin) ──────────────────────────────
     public UserResponse getUserById(String id, Jwt jwt) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException("User not found", 404));
@@ -211,18 +240,15 @@ public class UserService {
         return toUserResponse(user);
     }
 
-    // ─── Soft delete ──────────────────────────────────────────────────
     public void softDelete(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException("User not found", 404));
         user.setDeleted(true);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
-        // Note: on désactive aussi dans Keycloak sans supprimer
         keycloakService.disableUser(user.getKeycloakId());
     }
 
-    // ─── Mapper ───────────────────────────────────────────────────────
     private UserResponse toUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -233,6 +259,16 @@ public class UserService {
                 .role(user.getRole() != null ? user.getRole().name() : null)
                 .group(user.getGroup())
                 .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .birthDate(user.getBirthDate())
+                .birthPlace(user.getBirthPlace())
+                .nationality(user.getNationality())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .postalCode(user.getPostalCode())
+                .city(user.getCity())
+                .country(user.getCountry())
+                .emergencyContacts(user.getEmergencyContacts())
                 .deleted(user.isDeleted())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

@@ -19,7 +19,7 @@ public class BulkUserRequest {
 
     @NotNull private Role role;
 
-    private String group;   // optionnel
-    private String avatar;   // optionnel, base64
-    private Boolean deleted; // optionnel
+    private String group;
+    private String avatar;
+    private Boolean deleted;
 }

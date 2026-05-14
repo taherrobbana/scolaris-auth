@@ -28,7 +28,6 @@ public class SecurityConfig {
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints publics
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
@@ -36,7 +35,6 @@ public class SecurityConfig {
                                 "/api/auth/reset-password",
                                 "/api/auth/refresh-token"
                         ).permitAll()
-                        // Tout le reste nécessite un token valide
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -49,7 +47,6 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthConverter() {
         JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
-        // Le claim "roles" dans le JWT → ROLE_student, ROLE_admin, etc.
         converter.setAuthoritiesClaimName("roles");
         converter.setAuthorityPrefix("ROLE_");
 

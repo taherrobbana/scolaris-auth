@@ -20,6 +20,16 @@ public class UserResponse {
     private String role;
     private String group;
     private String avatar;
+    private String gender;
+    private String birthDate;
+    private String birthPlace;
+    private String nationality;
+    private String phone;
+    private String address;
+    private String postalCode;
+    private String city;
+    private String country;
+    private java.util.List<com.example.scolaris_auth.model.EmergencyContact> emergencyContacts;
     private boolean deleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

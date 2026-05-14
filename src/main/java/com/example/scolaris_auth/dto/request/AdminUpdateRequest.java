@@ -12,5 +12,5 @@ public class AdminUpdateRequest {
     private String group;
     private String avatar;
     private Boolean deleted;
-    private String newPassword; // optionnel
+    private String newPassword;
 }
